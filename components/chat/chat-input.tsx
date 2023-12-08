@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Plus, Smile } from 'lucide-react';
 import axios from 'axios';
 import qs from 'query-string';
+import { EmojiPicker } from '@/components/emoji-picker';
 
 interface ChatInputProps {
   apiUrl: string;
@@ -76,8 +77,10 @@ export const ChatInput = ({ apiUrl, query, name, type }: ChatInputProps) => {
                     {...field}
                   />
                   <div className="absolute top-7 right-8">
-                    <Smile
-                    //   onChange={(emoji: string) => field.onChange(`${field.value} ${emoji}`)}
+                    <EmojiPicker
+                      onChange={(emoji: string) =>
+                        field.onChange(`${field.value} ${emoji}`)
+                      }
                     />
                   </div>
                 </div>
