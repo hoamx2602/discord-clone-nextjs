@@ -1,17 +1,16 @@
 'use client';
 
-import * as z from 'zod';
+import { Member, MemberRole, Profile } from '@prisma/client';
 import axios from 'axios';
+import * as z from 'zod';
 import qs from 'query-string';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Member, MemberRole, Profile } from '@prisma/client';
+import { UserAvatar } from '@/components/user-avatar';
+import { ActionTooltip } from '@/components/action-tooltip';
 import { Edit, FileIcon, ShieldAlert, ShieldCheck, Trash } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-
-import { UserAvatar } from '@/components/user-avatar';
-import { ActionTooltip } from '@/components/action-tooltip';
 import { cn } from '@/lib/utils';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -54,27 +53,18 @@ export const ChatItem = ({
   socketUrl,
   socketQuery,
 }: ChatItemProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (event: any) => {
-      if (event.key === 'Escape' || event.keyCode === 27) {
-        setIsEditing(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => window.removeEventListener('keyDown', handleKeyDown);
-  }, []);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       content: content,
     },
   });
+
+  useEffect(() => {
+    form.reset({
+      content: content,
+    });
+  }, [content]);
 
   const isLoading = form.formState.isSubmitting;
 
@@ -94,11 +84,20 @@ export const ChatItem = ({
     }
   };
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
-    form.reset({
-      content: content,
-    });
-  }, [content]);
+    const handleKeyDown = (event: any) => {
+      if (event.key === 'Escape' || event.keyCode === 27) {
+        setIsEditing(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => window.removeEventListener('keyDown', handleKeyDown);
+  }, []);
 
   const fileType = fileUrl?.split('.').pop();
 
@@ -207,23 +206,23 @@ export const ChatItem = ({
               </span>
             </Form>
           )}
+          {canDeleteMessage && (
+            <div className="hidden group-hover:flex items-center gap-x-2 absolute p-1 -top-2 right-5 bg-white dark:bg-zinc-800 border rounded-sm">
+              {canEditMessage && (
+                <ActionTooltip label="Edit">
+                  <Edit
+                    onClick={() => setIsEditing(true)}
+                    className="cursor-pointer ml-auto w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition"
+                  />
+                </ActionTooltip>
+              )}
+              <ActionTooltip label="Delete">
+                <Trash className="cursor-pointer ml-auto w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition" />
+              </ActionTooltip>
+            </div>
+          )}
         </div>
       </div>
-      {canDeleteMessage && (
-        <div className="hidden group-hover:flex items-center gap-x-2 absolute p-1 -top-2 right-5 bg-white dark:bg-zinc-800 border rounded-sm">
-          {canEditMessage && (
-            <ActionTooltip label="Edit">
-              <Edit
-                onClick={() => setIsEditing(true)}
-                className="cursor-pointer ml-auto w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition"
-              />
-            </ActionTooltip>
-          )}
-          <ActionTooltip label="Delete">
-            <Trash className="cursor-pointer ml-auto w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition" />
-          </ActionTooltip>
-        </div>
-      )}
     </div>
   );
 };
