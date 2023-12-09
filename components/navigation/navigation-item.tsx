@@ -1,10 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-
 import { useParams, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-
 import { ActionTooltip } from '@/components/action-tooltip';
 
 interface NavigationItemProps {
@@ -20,6 +18,7 @@ export const NavigationItem = ({ id, imageUrl, name }: NavigationItemProps) => {
   const onClick = () => {
     router.push(`/servers/${id}`);
   };
+
   return (
     <ActionTooltip side="right" align="center" label={name}>
       <button onClick={onClick} className="group relative flex items-center">
